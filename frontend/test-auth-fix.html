@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auth Fix Test</title>
+</head>
+<body>
+    <h1>Authentication Fix Test</h1>
+    <div id="status"></div>
+    <button onclick="addAuthData()">Add Auth Data to localStorage</button>
+    <button onclick="checkAuthData()">Check Auth Data</button>
+    <button onclick="clearAuthData()">Clear Auth Data</button>
+    <button onclick="refreshPage()">Refresh Page</button>
+
+    <script>
+        function addAuthData() {
+            localStorage.setItem('auth_token', 'test-token-123');
+            localStorage.setItem('auth_user', JSON.stringify({
+                id: 1,
+                email: 'test@example.com',
+                firstName: 'Test',
+                lastName: 'User',
+                role: 'admin'
+            }));
+            updateStatus('Auth data added to localStorage');
+        }
+
+        function checkAuthData() {
+            const token = localStorage.getItem('auth_token');
+            const user = localStorage.getItem('auth_user');
+            updateStatus(`Token: ${token ? 'EXISTS' : 'NOT FOUND'}, User: ${user ? 'EXISTS' : 'NOT FOUND'}`);
+        }
+
+        function clearAuthData() {
+            localStorage.removeItem('auth_token');
+            localStorage.removeItem('auth_user');
+            updateStatus('Auth data cleared');
+        }
+
+        function refreshPage() {
+            window.location.reload();
+        }
+
+        function updateStatus(message) {
+            document.getElementById('status').innerHTML = `<p>${new Date().toLocaleTimeString()}: ${message}</p>` + document.getElementById('status').innerHTML;
+        }
+
+        // Check on page load
+        window.onload = function() {
+            checkAuthData();
+        };
+    </script>
+</body>
+</html>

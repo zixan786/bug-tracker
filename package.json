@@ -1,0 +1,23 @@
+{
+  "name": "bugtracker",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "start:dev": "concurrently \"npm:start:dev:*\"",
+    "start:dev:backend": "cd backend && npm run dev",
+    "start:dev:frontend": "cd frontend && npm run dev",
+    "build": "concurrently \"npm:build:*\"",
+    "build:backend": "cd backend && npm run build",
+    "build:frontend": "cd frontend && npm run build",
+    "lint": "concurrently \"npm:lint:*\"",
+    "lint:backend": "cd backend && npm run lint",
+    "lint:frontend": "cd frontend && npm run lint"
+  },
+  "dependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
