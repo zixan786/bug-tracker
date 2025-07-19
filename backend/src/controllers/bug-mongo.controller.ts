@@ -288,6 +288,7 @@ export const updateBug = async (req: AuthRequest, res: Response): Promise<void> 
           assignee: bug.assigneeId,
           project: bug.projectId,
           organizationId: bug.organizationId,
+          createdAt: bug.createdAt,
           updatedAt: bug.updatedAt
         }
       }
@@ -344,6 +345,7 @@ export const updateBugStatus = async (req: AuthRequest, res: Response): Promise<
           id: bug._id,
           title: bug.title,
           status: bug.status,
+          createdAt: bug.createdAt,
           updatedAt: bug.updatedAt
         }
       }

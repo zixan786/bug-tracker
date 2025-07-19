@@ -77,10 +77,29 @@ const transformProjectData = (project: any): Project => {
   };
 };
 
+// Helper function to safely format dates
+const formatDate = (dateValue: any): string => {
+  if (!dateValue) return 'N/A';
+
+  try {
+    const date = new Date(dateValue);
+    if (isNaN(date.getTime())) {
+      console.warn('Invalid date value:', dateValue);
+      return 'Invalid Date';
+    }
+    return date.toLocaleDateString();
+  } catch (error) {
+    console.warn('Error formatting date:', dateValue, error);
+    return 'Invalid Date';
+  }
+};
+
 const transformUserData = (user: any): AppUser => {
   return {
     ...user,
-    id: user.id || user._id
+    id: user.id || user._id,
+    createdAt: user.createdAt || new Date().toISOString(),
+    updatedAt: user.updatedAt || new Date().toISOString()
   };
 };
 
@@ -948,7 +967,13 @@ function App() {
       if (response.ok) {
         const data = await response.json();
         const updatedBug = transformBugData(data.data.bug);
-        setBugs(prev => prev.map(b => b.id === bugId ? updatedBug : b));
+
+        // Preserve original createdAt if missing from response
+        setBugs(prev => prev.map(b =>
+          b.id === bugId
+            ? { ...updatedBug, createdAt: updatedBug.createdAt || b.createdAt }
+            : b
+        ));
         return updatedBug;
       } else {
         const errorData = await response.json();
@@ -2504,7 +2529,7 @@ function App() {
                             </span>
                           </td>
                           <td style={{ padding: '0.75rem 0.5rem', color: '#666' }}>
-                            {new Date(bug.createdAt).toLocaleDateString()}
+                            {formatDate(bug.createdAt)}
                           </td>
                         </tr>
                       ))}
@@ -2712,7 +2737,7 @@ function App() {
                               <select
                                 value={bug.assigneeId || ''}
                                 onChange={async (e) => {
-                                  const newAssignedTo = e.target.value ? parseInt(e.target.value) : undefined;
+                                  const newAssignedTo = e.target.value || undefined;
                                   console.log(`Changing assignment for bug ${bug.id} to user ${newAssignedTo}`);
 
                                   try {
@@ -2770,7 +2795,7 @@ function App() {
                             )}
                           </td>
                           <td style={{ padding: '1rem 0.5rem', color: '#666' }}>
-                            {new Date(bug.createdAt).toLocaleDateString()}
+                            {formatDate(bug.createdAt)}
                           </td>
                           <td style={{ padding: '1rem 0.5rem' }}>
                             <button
@@ -2813,7 +2838,7 @@ function App() {
                               onClick={() => {
                                 const newAssignee = prompt(`Assign bug "${bug.title}" to user ID (or leave empty to unassign):`);
                                 if (newAssignee !== null) {
-                                  const assignedTo = newAssignee.trim() === '' ? undefined : parseInt(newAssignee);
+                                  const assignedTo = newAssignee.trim() === '' ? undefined : newAssignee.trim();
                                   updateBug(bug.id, {
                                     title: bug.title,
                                     description: bug.description,
@@ -3455,7 +3480,7 @@ function App() {
                           {project.status.toUpperCase()}
                         </span>
                         <span style={{ fontSize: '0.9rem', color: '#666' }}>
-                          Created: {new Date(project.createdAt).toLocaleDateString()}
+                          Created: {formatDate(project.createdAt)}
                         </span>
                       </div>
 
@@ -3888,7 +3913,7 @@ function App() {
                             </span>
                           </td>
                           <td style={{ padding: '1rem 0.5rem', color: '#666' }}>
-                            {new Date(appUser.createdAt).toLocaleDateString()}
+                            {formatDate(appUser.createdAt)}
                           </td>
                           <td style={{ padding: '1rem 0.5rem' }}>
                             <button
@@ -4171,8 +4196,8 @@ function App() {
                     severity: formData.get('severity') as string,
                     type: formData.get('type') as string,
                     status: formData.get('status') as string,
-                    projectId: parseInt(formData.get('projectId') as string),
-                    assigneeId: formData.get('assignedTo') ? parseInt(formData.get('assignedTo') as string) : undefined
+                    projectId: formData.get('projectId') as string,
+                    assigneeId: formData.get('assignedTo') as string || undefined
                   };
 
                   await updateBug(editingBug.id, bugData);
@@ -5093,7 +5118,7 @@ function App() {
                               </span>
                             </td>
                             <td style={{ padding: '0.75rem', color: '#666' }}>
-                              {new Date(user.createdAt).toLocaleDateString()}
+                              {formatDate(user.createdAt)}
                             </td>
                           </tr>
                         ));
@@ -5138,7 +5163,7 @@ function App() {
                               </span>
                             </td>
                             <td style={{ padding: '0.75rem', color: '#666' }}>
-                              {new Date(project.createdAt).toLocaleDateString()}
+                              {formatDate(project.createdAt)}
                             </td>
                           </tr>
                         ));
@@ -5199,7 +5224,7 @@ function App() {
                             </td>
                             <td style={{ padding: '0.75rem', color: '#666' }}>{bug.type}</td>
                             <td style={{ padding: '0.75rem', color: '#666' }}>
-                              {new Date(bug.createdAt).toLocaleDateString()}
+                              {formatDate(bug.createdAt)}
                             </td>
                           </tr>
                         ));

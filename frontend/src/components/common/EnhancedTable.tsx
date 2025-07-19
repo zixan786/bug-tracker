@@ -1,6 +1,23 @@
 import React, { useState } from 'react';
 import { tableStyles, getRoleColor, getStatusColor } from '../../styles/enhanced-theme';
 
+// Helper function to safely format dates
+const formatDate = (dateValue: any): string => {
+  if (!dateValue) return 'N/A';
+
+  try {
+    const date = new Date(dateValue);
+    if (isNaN(date.getTime())) {
+      console.warn('Invalid date value:', dateValue);
+      return 'Invalid Date';
+    }
+    return date.toLocaleDateString();
+  } catch (error) {
+    console.warn('Error formatting date:', dateValue, error);
+    return 'Invalid Date';
+  }
+};
+
 interface Column {
   key: string;
   label: string;
