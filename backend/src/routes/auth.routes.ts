@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { register, login, getProfile, refreshToken } from "../controllers/auth.controller";
-import { authenticateToken } from "../middlewares/auth.middleware";
+import { register, login, me, logout } from "../controllers/auth-mongo.controller";
+import { authenticateToken } from "../middlewares/auth-mongo.middleware";
 
 const router = Router();
 
@@ -9,7 +9,7 @@ router.post("/register", register);
 router.post("/login", login);
 
 // Protected routes
-router.get("/profile", authenticateToken, getProfile);
-router.post("/refresh", authenticateToken, refreshToken);
+router.get("/me", authenticateToken, me);
+router.post("/logout", authenticateToken, logout);
 
 export default router;

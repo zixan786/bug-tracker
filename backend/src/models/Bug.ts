@@ -12,6 +12,7 @@ import { User } from "./User";
 import { Project } from "./Project";
 import { Comment } from "./Comment";
 import { Attachment } from "./Attachment";
+import { Organization } from "./Organization";
 
 export enum BugStatus {
   OPEN = "open",
@@ -141,6 +142,13 @@ export class Bug {
   updatedAt!: Date;
 
   // Relations
+  @ManyToOne(() => Organization, (organization) => organization.bugs)
+  @JoinColumn({ name: "organizationId" })
+  organization!: Organization;
+
+  @Column()
+  organizationId!: number;
+
   @ManyToOne(() => Project, (project) => project.bugs)
   @JoinColumn({ name: "projectId" })
   project!: Project;

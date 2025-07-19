@@ -28,8 +28,7 @@ export class OrganizationMember {
   userId: number;
 
   @Column({
-    type: 'enum',
-    enum: OrganizationRole,
+    type: 'varchar',
     default: OrganizationRole.MEMBER
   })
   role: OrganizationRole;

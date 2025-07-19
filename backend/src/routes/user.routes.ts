@@ -5,8 +5,8 @@ import {
   updateUser,
   changePassword,
   deleteUser,
-} from "../controllers/user.controller";
-import { authenticateToken, requireAdmin } from "../middlewares/auth.middleware";
+} from "../controllers/user-mongo.controller";
+import { authenticateToken, requireRole } from "../middlewares/auth-mongo.middleware";
 
 const router = Router();
 
@@ -14,7 +14,7 @@ const router = Router();
 router.use(authenticateToken);
 
 // Get all users (admin only)
-router.get("/", requireAdmin, getAllUsers);
+router.get("/", requireRole('admin'), getAllUsers);
 
 // Get user by ID
 router.get("/:id", getUserById);
@@ -26,6 +26,6 @@ router.put("/:id", updateUser);
 router.put("/:id/password", changePassword);
 
 // Delete user (admin only)
-router.delete("/:id", requireAdmin, deleteUser);
+router.delete("/:id", requireRole('admin'), deleteUser);
 
 export default router;

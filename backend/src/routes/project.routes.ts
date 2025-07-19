@@ -7,8 +7,8 @@ import {
   deleteProject,
   getMyProjects,
   addMemberToProject,
-} from "../controllers/project.controller";
-import { authenticateToken, requireDeveloperOrAdmin, requireProjectTeam } from "../middlewares/auth.middleware";
+} from "../controllers/project-mongo.controller";
+import { authenticateToken } from "../middlewares/auth-mongo.middleware";
 
 const router = Router();
 
@@ -24,8 +24,8 @@ router.get("/", getAllProjects);
 // Get project by ID
 router.get("/:id", getProjectById);
 
-// Create project (project managers, developers and admins only)
-router.post("/", requireProjectTeam, createProject);
+// Create project
+router.post("/", createProject);
 
 // Update project
 router.put("/:id", updateProject);
@@ -34,6 +34,6 @@ router.put("/:id", updateProject);
 router.delete("/:id", deleteProject);
 
 //add member to project (only admin, owner can add)
-router.post("/:projectId/members/:userId", authenticateToken, addMemberToProject);
+router.post("/:projectId/members/:userId", addMemberToProject);
 
 export default router;

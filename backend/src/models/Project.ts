@@ -12,6 +12,7 @@ import {
 } from "typeorm";
 import { User } from "./User";
 import { Bug } from "./Bug";
+import { Organization } from "./Organization";
 
 export enum ProjectStatus {
   ACTIVE = "active",
@@ -52,6 +53,13 @@ export class Project {
   updatedAt!: Date;
 
   // Relations
+  @ManyToOne(() => Organization, (organization) => organization.projects)
+  @JoinColumn({ name: "organizationId" })
+  organization!: Organization;
+
+  @Column()
+  organizationId!: number;
+
   @ManyToOne(() => User, (user) => user.ownedProjects)
   @JoinColumn({ name: "ownerId" })
   owner!: User;

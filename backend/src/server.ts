@@ -1,13 +1,23 @@
-import "reflect-metadata";
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import { config } from "./config";
 import { errorMiddleware } from "./middlewares/error.middleware";
-import { AppDataSource } from "./config/database";
+import { connectMongoDB } from "./config/mongodb";
+
+// Import all models to register schemas
+import "./models/mongoose/User";
+import "./models/mongoose/Organization";
+import "./models/mongoose/OrganizationMember";
+import "./models/mongoose/Project";
+import "./models/mongoose/Bug";
+import "./models/mongoose/Plan";
+import "./models/mongoose/Subscription";
 import authRoutes from "./routes/auth.routes";
 import userRoutes from "./routes/user.routes";
+import organizationRoutes from "./routes/organization.routes";
+import adminRoutes from "./routes/admin.routes";
 import projectRoutes from "./routes/project.routes";
 import bugRoutes from "./routes/bug.routes";
 
@@ -59,6 +69,8 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/organizations", organizationRoutes);
+app.use("/api/admin", adminRoutes);
 app.use("/api/projects", projectRoutes);
 app.use("/api/bugs", bugRoutes);
 
@@ -71,14 +83,13 @@ app.get("/api/health", (req, res) => {
 app.use(errorMiddleware);
 
 // Initialize database and start server
-AppDataSource.initialize()
+connectMongoDB()
   .then(() => {
-    console.log("Database connected successfully");
     app.listen(config.port, () => {
-      console.log(`Server running on port ${config.port}`);
+      console.log(`🚀 Server running on port ${config.port}`);
     });
   })
   .catch((error) => {
-    console.error("Database connection failed:", error);
+    console.error("Failed to start server:", error);
     process.exit(1);
   });

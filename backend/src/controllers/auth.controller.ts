@@ -2,6 +2,8 @@ import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { AppDataSource } from "../config/database";
 import { User, UserRole } from "../models/User";
+import { OrganizationMember, MemberStatus } from "../models/OrganizationMember";
+import { Organization } from "../models/Organization";
 import { ApiError } from "../middlewares/error.middleware";
 import { config } from "../config";
 import { registerSchema, loginSchema } from "../utils/validation";
@@ -78,6 +80,40 @@ export const login = async (
       throw new ApiError(401, "Invalid credentials");
     }
 
+    // Get user's organizations
+    const memberRepository = AppDataSource.getRepository(OrganizationMember);
+    const organizationRepository = AppDataSource.getRepository(Organization);
+
+    const memberships = await memberRepository.find({
+      where: {
+        userId: user.id,
+        status: MemberStatus.ACTIVE
+      },
+      relations: ['organization'],
+      order: { joinedAt: 'ASC' }
+    });
+
+    const organizations = memberships.map(membership => ({
+      id: membership.organization.id,
+      name: membership.organization.name,
+      slug: membership.organization.slug,
+      role: membership.role,
+      subscriptionStatus: membership.organization.subscriptionStatus,
+      trialEndsAt: membership.organization.trialEndsAt,
+      userCount: 0, // Will be populated by frontend if needed
+      projectCount: 0, // Will be populated by frontend if needed
+      bugCount: 0 // Will be populated by frontend if needed
+    }));
+
+    // Determine if this is a system admin or tenant user
+    const isSystemAdmin = user.role === UserRole.ADMIN && user.email === 'admin@bugtracker.com';
+
+    // For tenant users, set their primary organization
+    let primaryOrganization = null;
+    if (!isSystemAdmin && organizations.length > 0) {
+      primaryOrganization = organizations[0]; // Use first organization as primary
+    }
+
     // Generate token
     const token = generateToken(user.id);
 
@@ -85,8 +121,13 @@ export const login = async (
       success: true,
       message: "Login successful",
       data: {
-        user: user.toJSON(),
+        user: {
+          ...user.toJSON(),
+          isSystemAdmin
+        },
         token,
+        organizations,
+        primaryOrganization
       },
     });
   } catch (error) {

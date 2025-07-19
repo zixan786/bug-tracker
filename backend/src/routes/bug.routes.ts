@@ -5,14 +5,9 @@ import {
   createBug,
   updateBug,
   deleteBug,
-  addComment,
-  transitionBugStatus,
-  assignBugToQA,
-  blockBug,
-  unblockBug,
-  getBugHistory,
-} from "../controllers/bug.controller";
-import { authenticateToken, requireDeveloperQAOrAdmin } from "../middlewares/auth.middleware";
+  updateBugStatus,
+} from "../controllers/bug-mongo.controller";
+import { authenticateToken } from "../middlewares/auth-mongo.middleware";
 
 const router = Router();
 
@@ -34,14 +29,14 @@ router.put("/:id", updateBug);
 // Delete bug
 router.delete("/:id", deleteBug);
 
-// Add comment to bug
-router.post("/:id/comments", addComment);
+// Update bug status
+router.put("/:id/status", updateBugStatus);
 
-// Enhanced workflow endpoints
-router.put("/:id/status", requireDeveloperQAOrAdmin, transitionBugStatus);
-router.put("/:id/qa-assign", requireDeveloperQAOrAdmin, assignBugToQA);
-router.put("/:id/block", requireDeveloperQAOrAdmin, blockBug);
-router.put("/:id/unblock", requireDeveloperQAOrAdmin, unblockBug);
-router.get("/:id/history", getBugHistory);
+// TODO: Implement additional workflow endpoints
+// router.post("/:id/comments", addComment);
+// router.put("/:id/qa-assign", assignBugToQA);
+// router.put("/:id/block", blockBug);
+// router.put("/:id/unblock", unblockBug);
+// router.get("/:id/history", getBugHistory);
 
 export default router;
